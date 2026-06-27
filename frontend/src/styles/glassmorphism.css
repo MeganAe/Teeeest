@@ -1,0 +1,19 @@
+﻿.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.dark .glass {
+  background: rgba(17, 25, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.glass-card {
+  @apply glass rounded-2xl transition-all duration-300;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+}

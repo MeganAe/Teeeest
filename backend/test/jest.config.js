@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    moduleFileExtensions: ['js', 'json', 'ts'],
+    rootDir: '.',
+    testEnvironment: 'node',
+    testRegex: '.*\\.spec\\.ts$',
+    transform: {
+        '^.+\\.(t|j)s$': 'ts-jest',
+    },
+    collectCoverageFrom: ['../src/**/*.(t|j)s'],
+    coverageDirectory: '../coverage',
+    moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/../src/$1',
+    },
+};

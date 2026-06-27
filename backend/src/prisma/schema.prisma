@@ -1,0 +1,308 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== ENUMS =====================
+
+enum Role {
+  ADMIN
+  RECEPTIONIST
+  MEDECIN_DIRECTEUR
+  PERCEPTEUR
+  PHARMACIEN
+  COMPTABLE
+}
+
+enum Sexe {
+  MASCULIN
+  FEMININ
+}
+
+enum HandicapType {
+  AUCUN
+  MOTEUR
+  VISUEL
+  AUDITIF
+  MENTAL
+  AUTRE
+}
+
+enum ConsultationStatus {
+  EN_ATTENTE
+  EN_COURS
+  TERMINEE
+  ANNULEE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  MOBILE_MONEY
+  BANK_TRANSFER
+  INSURANCE
+}
+
+// ===================== MODELS =====================
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        Role
+  isActive    Boolean   @default(true)
+  lastLogin   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  consultations   Consultation[]   @relation("MedecinConsultations")
+  patientsCreated Patient[]        @relation("CreatedByUser")
+  kineSessions    KineSession[]    @relation("TherapistSessions")
+  auditLogs       AuditLog[]
+}
+
+model Patient {
+  id              String       @id @default(cuid())
+  numeroDossier   String       @unique
+  nom             String
+  postnom         String?
+  prenom          String
+  sexe            Sexe
+  dateNaissance   DateTime
+  telephone       String?
+  adresse         String?
+  contactUrgence  String?
+  typeHandicap    HandicapType @default(AUCUN)
+  createdBy       String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  creator           User?              @relation("CreatedByUser", fields: [createdBy], references: [id])
+  consultations     Consultation[]
+  payments          Payment[]
+  examRequests      ExamRequest[]
+  hospitalizations  Hospitalization[]
+  kineSessions      KineSession[]
+  surgeries         Surgery[]
+  nursingCares      NursingCare[]
+  sales             Sale[]
+}
+
+model Consultation {
+  id                String             @id @default(cuid())
+  patientId         String
+  medecinId         String
+  motif             String
+  diagnostic        String?
+  tension           String?
+  temperature       Float?
+  poids             Float?
+  taille            Float?
+  traitement        String?
+  notes             String?
+  status            ConsultationStatus @default(EN_ATTENTE)
+  dateConsultation  DateTime           @default(now())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  medecin       User           @relation("MedecinConsultations", fields: [medecinId], references: [id])
+  prescriptions Prescription[]
+  examRequests  ExamRequest[]
+}
+
+model Prescription {
+  id             String   @id @default(cuid())
+  consultationId String
+  medicament     String
+  dosage         String
+  duree          String
+  instructions   String?
+  createdAt      DateTime @default(now())
+
+  consultation Consultation @relation(fields: [consultationId], references: [id])
+  sales        Sale[]
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  patientId     String
+  montant       Float
+  type          String
+  modePaiement  PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  receiptNumber String?       @unique
+  reference     String?       @unique
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model ExamRequest {
+  id             String    @id @default(cuid())
+  patientId      String
+  consultationId String?
+  type           String
+  description    String?
+  status         String    @default("EN_ATTENTE")
+  requestedAt    DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  patient      Patient       @relation(fields: [patientId], references: [id])
+  consultation Consultation? @relation(fields: [consultationId], references: [id])
+  examResult   ExamResult?
+}
+
+model ExamResult {
+  id            String   @id @default(cuid())
+  examRequestId String   @unique
+  result        String
+  completedAt   DateTime @default(now())
+
+  examRequest ExamRequest @relation(fields: [examRequestId], references: [id])
+}
+
+model Hospitalization {
+  id            String    @id @default(cuid())
+  patientId     String
+  litNumber     String
+  diagnostic    String
+  status        String    @default("ACTIF")
+  dateAdmission DateTime  @default(now())
+  dateSortie    DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  patient        Patient          @relation(fields: [patientId], references: [id])
+  dailyFollowups DailyFollowup[]
+}
+
+model DailyFollowup {
+  id                String   @id @default(cuid())
+  hospitalizationId String
+  date              DateTime @default(now())
+  tension           String?
+  temperature       Float?
+  poids             Float?
+  observations      String?
+  createdAt         DateTime @default(now())
+
+  hospitalization Hospitalization @relation(fields: [hospitalizationId], references: [id])
+}
+
+model KineSession {
+  id           String   @id @default(cuid())
+  patientId    String
+  date         DateTime
+  duration     Int
+  exercises    String?
+  observations String?
+  status       String   @default("PLANIFIE")
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  therapist User?   @relation("TherapistSessions", fields: [createdBy], references: [id])
+}
+
+model Surgery {
+  id            String    @id @default(cuid())
+  patientId     String
+  type          String
+  scheduledDate DateTime
+  description   String?
+  status        String    @default("PLANIFIEE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model NursingCare {
+  id           String   @id @default(cuid())
+  patientId    String
+  type         String
+  description  String?
+  products     String?
+  observations String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model Medication {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  unit        String
+  price       Float
+  stock       Int       @default(0)
+  threshold   Int       @default(10)
+  expiryDate  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sales Sale[]
+}
+
+model Sale {
+  id             String   @id @default(cuid())
+  medicationId   String
+  patientId      String?
+  prescriptionId String?
+  quantity       Int
+  unitPrice      Float
+  totalPrice     Float
+  soldAt         DateTime @default(now())
+
+  medication   Medication    @relation(fields: [medicationId], references: [id])
+  patient      Patient?      @relation(fields: [patientId], references: [id])
+  prescription Prescription? @relation(fields: [prescriptionId], references: [id])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  category    String
+  account     String
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entity     String
+  entityId   String?
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
