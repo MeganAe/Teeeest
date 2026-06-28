@@ -13,25 +13,25 @@ export class TreatmentsController {
 
   // Kinésithérapie
   @Get('kinesitherapie')
-  @Roles(Role.ADMIN, Role.KINESITHERAPEUTE, Role.MEDECIN_DIRECTEUR)
+  @Roles(Role.ADMIN, Role.MEDECIN_DIRECTEUR, Role.MEDECIN_DIRECTEUR)
   async getAllKineSessions(@Query() query: any) {
     return this.treatmentsService.getAllKineSessions(query)
   }
 
   @Get('kinesitherapie/patient/:patientId')
-  @Roles(Role.ADMIN, Role.KINESITHERAPEUTE, Role.MEDECIN_DIRECTEUR)
+  @Roles(Role.ADMIN, Role.MEDECIN_DIRECTEUR, Role.MEDECIN_DIRECTEUR)
   async getKineSessionsByPatient(@Param('patientId') patientId: string) {
     return this.treatmentsService.getKineSessionsByPatient(patientId)
   }
 
   @Post('kinesitherapie')
-  @Roles(Role.ADMIN, Role.KINESITHERAPEUTE)
+  @Roles(Role.ADMIN, Role.MEDECIN_DIRECTEUR)
   async createKineSession(@Body() dto: CreateKineSessionDto, @CurrentUser('id') userId: string) {
     return this.treatmentsService.createKineSession(dto, userId)
   }
 
   @Put('kinesitherapie/:id')
-  @Roles(Role.ADMIN, Role.KINESITHERAPEUTE)
+  @Roles(Role.ADMIN, Role.MEDECIN_DIRECTEUR)
   async updateKineSession(@Param('id') id: string, @Body() dto: any) {
     return this.treatmentsService.updateKineSession(id, dto)
   }
@@ -63,25 +63,25 @@ export class TreatmentsController {
 
   // Soins infirmiers
   @Get('soins')
-  @Roles(Role.ADMIN, Role.INFIRMIER, Role.MEDECIN_DIRECTEUR)
+  @Roles(Role.ADMIN, Role.RECEPTIONIST, Role.MEDECIN_DIRECTEUR)
   async getAllNursingCares(@Query() query: any) {
     return this.treatmentsService.getAllNursingCares(query)
   }
 
   @Get('soins/patient/:patientId')
-  @Roles(Role.ADMIN, Role.INFIRMIER, Role.MEDECIN_DIRECTEUR)
+  @Roles(Role.ADMIN, Role.RECEPTIONIST, Role.MEDECIN_DIRECTEUR)
   async getNursingCaresByPatient(@Param('patientId') patientId: string) {
     return this.treatmentsService.getNursingCaresByPatient(patientId)
   }
 
   @Post('soins')
-  @Roles(Role.ADMIN, Role.INFIRMIER)
+  @Roles(Role.ADMIN, Role.RECEPTIONIST)
   async createNursingCare(@Body() dto: CreateNursingCareDto, @CurrentUser('id') userId: string) {
     return this.treatmentsService.createNursingCare(dto, userId)
   }
 
   @Put('soins/:id')
-  @Roles(Role.ADMIN, Role.INFIRMIER)
+  @Roles(Role.ADMIN, Role.RECEPTIONIST)
   async updateNursingCare(@Param('id') id: string, @Body() dto: any) {
     return this.treatmentsService.updateNursingCare(id, dto)
   }

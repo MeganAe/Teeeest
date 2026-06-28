@@ -113,6 +113,7 @@ export class TreatmentsService {
         scheduledDate: new Date(dto.scheduledDate),
         description: dto.description,
         status: dto.status || 'PLANIFIE',
+        surgeonId: userId,
         createdBy: userId,
       },
       include: { patient: true, surgeon: true },
