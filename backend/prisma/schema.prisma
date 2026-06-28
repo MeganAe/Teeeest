@@ -72,6 +72,7 @@ model User {
   patientsCreated Patient[]        @relation("CreatedByUser")
   kineSessions    KineSession[]    @relation("TherapistSessions")
   nursingCares    NursingCare[]    @relation("NurseCareSessions")
+  surgeries       Surgery[]        @relation("SurgeonSurgeries")
   auditLogs       AuditLog[]
 }
 
@@ -227,14 +228,17 @@ model KineSession {
 model Surgery {
   id            String    @id @default(cuid())
   patientId     String
+  surgeonId     String?
   type          String
   scheduledDate DateTime
   description   String?
   status        String    @default("PLANIFIEE")
+  createdBy     String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   patient Patient @relation(fields: [patientId], references: [id])
+  surgeon User?   @relation("SurgeonSurgeries", fields: [surgeonId], references: [id])
 }
 
 model NursingCare {
