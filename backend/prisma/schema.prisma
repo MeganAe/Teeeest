@@ -73,6 +73,8 @@ model User {
   kineSessions    KineSession[]    @relation("TherapistSessions")
   nursingCares    NursingCare[]    @relation("NurseCareSessions")
   surgeries       Surgery[]        @relation("SurgeonSurgeries")
+  payments        Payment[]        @relation("CollectorPayments")
+  sales           Sale[]           @relation("SoldBySales")
   auditLogs       AuditLog[]
 }
 
@@ -150,10 +152,12 @@ model Payment {
   receiptNumber String?       @unique
   reference     String?       @unique
   notes         String?
+  collectedBy   String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  patient Patient @relation(fields: [patientId], references: [id])
+  patient   Patient @relation(fields: [patientId], references: [id])
+  collector User?   @relation("CollectorPayments", fields: [collectedBy], references: [id])
 }
 
 model ExamRequest {
@@ -259,6 +263,7 @@ model NursingCare {
 
 model Medication {
   id          String    @id @default(cuid())
+  code        String?   @unique
   name        String
   description String?
   category    String
@@ -279,6 +284,7 @@ model Sale {
   medicationId   String
   patientId      String?
   prescriptionId String?
+  soldById       String?
   quantity       Int
   unitPrice      Float
   totalPrice     Float
@@ -287,6 +293,7 @@ model Sale {
   medication   Medication    @relation(fields: [medicationId], references: [id])
   patient      Patient?      @relation(fields: [patientId], references: [id])
   prescription Prescription? @relation(fields: [prescriptionId], references: [id])
+  soldBy       User?         @relation("SoldBySales", fields: [soldById], references: [id])
 }
 
 model Expense {
