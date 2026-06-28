@@ -71,6 +71,7 @@ model User {
   consultations   Consultation[]   @relation("MedecinConsultations")
   patientsCreated Patient[]        @relation("CreatedByUser")
   kineSessions    KineSession[]    @relation("TherapistSessions")
+  nursingCares    NursingCare[]    @relation("NurseCareSessions")
   auditLogs       AuditLog[]
 }
 
@@ -239,14 +240,17 @@ model Surgery {
 model NursingCare {
   id           String   @id @default(cuid())
   patientId    String
+  nurseId      String?
   type         String
   description  String?
   products     String?
   observations String?
+  createdBy    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   patient Patient @relation(fields: [patientId], references: [id])
+  nurse   User?   @relation("NurseCareSessions", fields: [nurseId], references: [id])
 }
 
 model Medication {
