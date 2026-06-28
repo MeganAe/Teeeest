@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../config/database/prisma.service'
-import * as ExcelJS from 'exceljs'
-import * as PDFDocument from 'pdfkit'
 
 @Injectable()
 export class ReportsService {
@@ -85,7 +83,7 @@ export class ReportsService {
           acc[key] = (acc[key] || 0) + 1
           return acc
         }, {}),
-        topDiagnostics: Object.entries(topDiagnostics).sort((a, b) => b[1] - a[1]).slice(0, 10),
+        topDiagnostics: Object.entries(topDiagnostics).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 10),
       },
       exams: {
         total: exams.length,
