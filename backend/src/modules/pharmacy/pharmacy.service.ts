@@ -22,7 +22,7 @@ export class PharmacyService {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
       ]
     }
     if (category) {
@@ -132,7 +132,7 @@ export class PharmacyService {
         totalPrice,
         patientId: sellMedicationDto.patientId,
         prescriptionId: sellMedicationDto.prescriptionId,
-        soldBy: userId,
+        soldById: userId,
       },
     })
 
