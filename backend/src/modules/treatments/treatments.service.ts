@@ -170,6 +170,7 @@ export class TreatmentsService {
         description: dto.description,
         products: dto.products,
         observations: dto.observations,
+        nurseId: userId,
         createdBy: userId,
       },
       include: { patient: true, nurse: true },
